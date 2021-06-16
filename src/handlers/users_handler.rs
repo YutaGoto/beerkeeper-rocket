@@ -25,6 +25,7 @@ pub fn create_user(new_user: Json<NewUser>, connection: DbConn) ->  Result<statu
         name: new_user.name.clone(),
         email: new_user.email.clone(),
         password: user::hash_password(&new_user.password),
+        login_session: user::hash_password(&new_user.password)
     };
 
     users_repository::create_user(new_user, &connection)
@@ -63,7 +64,8 @@ pub fn login_user(login_info: Json<LoginUser>, connection: DbConn) -> Result<Jso
     users_repository::login_user(login_user, &connection)
         .map(|user| {
             let header_user: HeaderUser = HeaderUser {
-                user_id: user.id
+                user_id: user.id,
+                login_session: user.login_session
             };
             Json(header_user)
         })

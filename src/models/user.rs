@@ -12,6 +12,7 @@ pub struct User {
     pub name: String,
     pub email: String,
     pub password: String,
+    pub login_session: String,
 }
 
 #[derive(Insertable, Serialize, Deserialize)]
@@ -20,6 +21,7 @@ pub struct NewUser {
     pub name: String,
     pub email: String,
     pub password: String,
+    pub login_session: String,
 }
 
 #[derive(Queryable, Serialize)]
@@ -38,6 +40,7 @@ pub struct LoginUser {
 #[derive(Serialize, Deserialize)]
 pub struct HeaderUser {
     pub user_id: i32,
+    pub login_session: String,
 }
 
 pub fn hash_password(password: &String) -> String {

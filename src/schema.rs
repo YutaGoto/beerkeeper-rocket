@@ -4,5 +4,6 @@ table! {
         name -> Varchar,
         email -> Varchar,
         password -> Varchar,
+        login_session -> Varchar,
     }
 }
