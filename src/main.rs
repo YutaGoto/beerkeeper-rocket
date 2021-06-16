@@ -14,9 +14,12 @@ use dotenv::dotenv;
 
 mod schema;
 mod connection;
-mod user;
+mod routers;
+mod handlers;
+mod repositories;
+mod models;
 
 fn main() {
     dotenv().ok();
-    user::router::create_routes();
+    routers::users_router::create_routes();
 }

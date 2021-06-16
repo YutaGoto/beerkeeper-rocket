@@ -3,10 +3,8 @@
 use diesel;
 use diesel::prelude::*;
 
-use crate::user;
-use crate::user::model::User;
-use crate::user::model::NewUser;
-use crate::user::model::LoginUser;
+use crate::models::user;
+use crate::models::user::{User, NewUser, LoginUser};
 
 use crate::schema::users;
 use crate::schema::users::dsl::*;
@@ -33,6 +31,6 @@ pub fn delete_user(user_id: i32, connection: &PgConnection) -> QueryResult<usize
 }
 
 pub fn login_user(login_user: LoginUser, connection: &PgConnection) -> QueryResult<User> {
-    let hash_password = user::model::hash_password(&login_user.password);
+    let hash_password = user::hash_password(&login_user.password);
     users::table.filter(users::email.eq(login_user.email)).filter(users::password.eq(hash_password)).first::<User>(connection)
 }
