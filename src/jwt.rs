@@ -1,16 +1,18 @@
 use chrono::Utc;
-use config::DbConn;
 use jsonwebtoken::errors::Result;
 use jsonwebtoken::TokenData;
 use jsonwebtoken::{Header, Validation};
 use jsonwebtoken::{EncodingKey, DecodingKey};
-use models::response::Response;
-use models::user::{ User, LoginUser };
 use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::{self, FromRequest, Request};
 use rocket::response::status;
 use rocket_contrib::json::Json;
+
+use crate::connection::DbConn;
+use crate::constants::messages_constant;
+use crate::models::response::Response;
+use crate::models::user::{ User, LoginInfoDTO };
 
 static ONE_WEEK: i64 = 60 * 60 * 24 * 7; // in seconds
 
@@ -48,7 +50,7 @@ impl<'a, 'r> FromRequest<'a, 'r> for UserToken {
             status::Custom(
                 Status::Unauthorized,
                 Json(Response {
-                    message: String::from("Invalid token"),
+                    message: String::from(messages_constant::MESSAGE_INVALID_TOKEN),
                     data: serde_json::to_value("").unwrap(),
                 }),
             ),
@@ -61,7 +63,7 @@ pub fn generate_token(login: LoginInfoDTO) -> String {
     let payload = UserToken {
         iat: now,
         exp: now + ONE_WEEK,
-        user: login.username,
+        user: login.email,
         login_session: login.login_session,
     };
 

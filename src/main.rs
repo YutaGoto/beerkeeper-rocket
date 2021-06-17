@@ -1,23 +1,31 @@
-#![feature(decl_macro, proc_macro_hygiene)]
-#[macro_use]
-extern crate diesel;
-extern crate dotenv;
-extern crate r2d2;
-extern crate r2d2_diesel;
+#![feature(proc_macro_hygiene, decl_macro)]
+#![allow(proc_macro_derive_resolution_fallback)]
+
 #[macro_use]
 extern crate rocket;
 extern crate rocket_contrib;
 #[macro_use]
+extern crate diesel;
+#[macro_use]
 extern crate serde_derive;
+extern crate bcrypt;
+extern crate dotenv;
+extern crate jsonwebtoken;
+extern crate serde;
+extern crate serde_json;
+extern crate chrono;
+extern crate uuid;
 
 use dotenv::dotenv;
 
+mod jwt;
 mod schema;
 mod connection;
-mod routers;
+mod constants;
 mod handlers;
-mod repositories;
+mod services;
 mod models;
+mod routers;
 
 fn main() {
     dotenv().ok();

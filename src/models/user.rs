@@ -1,50 +1,100 @@
-#![allow(proc_macro_derive_resolution_fallback)]
+use bcrypt::{hash, verify, DEFAULT_COST};
+use diesel::prelude::*;
+use diesel::PgConnection;
+use uuid::Uuid;
 
 use crate::schema::users;
+use crate::schema::users::dsl::*;
+use crate::jwt::UserToken;
 
-use crypto::digest::Digest;
-use crypto::sha3::Sha3;
-
-#[derive(Queryable, AsChangeset, Serialize, Deserialize, Debug)]
-#[table_name = "users"]
+#[derive(Identifiable, Queryable, Serialize, Deserialize)]
 pub struct User {
     pub id: i32,
     pub name: String,
     pub email: String,
     pub password: String,
-    pub login_session: String,
+    pub login_session: Option<String>,
 }
 
 #[derive(Insertable, Serialize, Deserialize)]
-#[table_name="users"]
-pub struct NewUser {
+#[table_name = "users"]
+pub struct UserDTO {
     pub name: String,
-    pub email: String,
-    pub password: String,
-    pub login_session: String,
-}
-
-#[derive(Queryable, Serialize)]
-pub struct UserEntity {
-    pub id: i32,
-    pub name: String,
-    pub email: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct LoginUser {
     pub email: String,
     pub password: String,
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct HeaderUser {
-    pub user_id: i32,
+pub struct LoginDTO {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Insertable)]
+#[table_name = "users"]
+pub struct LoginInfoDTO {
+    pub email: String,
     pub login_session: String,
 }
 
-pub fn hash_password(password: &String) -> String {
-    let mut hasher = Sha3::sha3_256();
-    hasher.input_str(password);
-    hasher.result_str()
+impl User {
+    pub fn signup(user: UserDTO, conn: &PgConnection) -> QueryResult<usize> {
+        let hashed_pwd = hash(&user.password, DEFAULT_COST).unwrap();
+        let user = UserDTO {
+            password: hashed_pwd,
+            ..user
+        };
+
+        diesel::insert_into(users).values(&user).execute(conn)
+    }
+
+    pub fn login(login: LoginDTO, conn: &PgConnection) -> Option<LoginInfoDTO> {
+        let user_to_verify = users.filter(email.eq(&login.email)).get_result::<User>(conn);
+        if let Ok(user) = user_to_verify {
+            if !user.password.is_empty() && verify(&login.password, &user.password).unwrap() {
+                let login_session_str = User::generate_login_session();
+                User::update_login_session_to_db(&user.email, &login_session_str, conn);
+                Some(LoginInfoDTO {
+                    email: user.email,
+                    login_session: login_session_str,
+                })
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    pub fn is_valid_login_session(user_token: &UserToken, conn: &PgConnection) -> bool {
+        users
+            .filter(name.eq(&user_token.user))
+            .filter(login_session.eq(&user_token.login_session))
+            .get_result::<User>(conn)
+            .is_ok()
+    }
+
+    pub fn find_user_by_name(un: &str, conn: &PgConnection) -> Option<User> {
+        let result_user = users.filter(name.eq(un)).get_result::<User>(conn);
+        if let Ok(user) = result_user {
+            Some(user)
+        } else {
+            None
+        }
+    }
+
+    pub fn generate_login_session() -> String {
+        Uuid::new_v4().to_simple().to_string()
+    }
+
+    pub fn update_login_session_to_db(un: &str, login_session_str: &str, conn: &PgConnection) -> bool {
+        if let Some(user) = User::find_user_by_name(un, conn) {
+            diesel::update(users.find(user.id))
+                .set(login_session.eq(login_session_str.to_string()))
+                .execute(conn)
+                .is_ok()
+        } else {
+            false
+        }
+    }
 }

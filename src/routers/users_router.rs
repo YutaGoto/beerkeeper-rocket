@@ -9,12 +9,8 @@ pub fn create_routes() {
         .mount(
             "/users",
             routes![
-                users_handler::all_users,
-                users_handler::create_user,
-                users_handler::get_user,
-                users_handler::update_user,
-                users_handler::delete_user,
-                users_handler::login_user
+                users_handler::login_user,
+                users_handler::signup_user
             ],
         ).launch();
 }
