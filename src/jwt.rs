@@ -23,7 +23,7 @@ pub struct UserToken {
     // expiration
     pub exp: i64,
     // data
-    pub user: String,
+    pub email: String,
     pub login_session: String,
 }
 
@@ -63,7 +63,7 @@ pub fn generate_token(login: LoginInfoDTO) -> String {
     let payload = UserToken {
         iat: now,
         exp: now + ONE_WEEK,
-        user: login.email,
+        email: login.email,
         login_session: login.login_session,
     };
 

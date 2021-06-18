@@ -25,6 +25,14 @@ pub struct UserDTO {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct UserInfo {
+    pub id: i32,
+    pub name: String,
+    pub email: String,
+}
+
+
+#[derive(Serialize, Deserialize)]
 pub struct LoginDTO {
     pub email: String,
     pub password: String,
@@ -68,14 +76,23 @@ impl User {
 
     pub fn is_valid_login_session(user_token: &UserToken, conn: &PgConnection) -> bool {
         users
-            .filter(name.eq(&user_token.user))
+            .filter(email.eq(&user_token.email))
             .filter(login_session.eq(&user_token.login_session))
             .get_result::<User>(conn)
             .is_ok()
     }
 
-    pub fn find_user_by_name(un: &str, conn: &PgConnection) -> Option<User> {
-        let result_user = users.filter(name.eq(un)).get_result::<User>(conn);
+    pub fn find_user_by_email(un: &str, conn: &PgConnection) -> Option<User> {
+        let result_user = users.filter(email.eq(un)).get_result::<User>(conn);
+        if let Ok(user) = result_user {
+            Some(user)
+        } else {
+            None
+        }
+    }
+
+    pub fn find_by_id(i: i32, conn: &PgConnection) -> Option<User> {
+        let result_user = users.find(i).get_result::<User>(conn);
         if let Ok(user) = result_user {
             Some(user)
         } else {
@@ -88,7 +105,7 @@ impl User {
     }
 
     pub fn update_login_session_to_db(un: &str, login_session_str: &str, conn: &PgConnection) -> bool {
-        if let Some(user) = User::find_user_by_name(un, conn) {
+        if let Some(user) = User::find_user_by_email(un, conn) {
             diesel::update(users.find(user.id))
                 .set(login_session.eq(login_session_str.to_string()))
                 .execute(conn)

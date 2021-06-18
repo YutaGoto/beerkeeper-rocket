@@ -10,7 +10,8 @@ pub fn create_routes() {
             "/users",
             routes![
                 users_handler::login_user,
-                users_handler::signup_user
+                users_handler::signup_user,
+                users_handler::my_profile
             ],
         ).launch();
 }
