@@ -30,4 +30,5 @@ mod routers;
 fn main() {
     dotenv().ok();
     routers::users_router::create_routes();
+    routers::events_router::create_routes();
 }
