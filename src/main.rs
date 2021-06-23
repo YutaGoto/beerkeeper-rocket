@@ -25,10 +25,27 @@ mod constants;
 mod handlers;
 mod services;
 mod models;
-mod routers;
+
+use crate::handlers::{users_handler, events_handler};
 
 fn main() {
     dotenv().ok();
-    routers::users_router::create_routes();
-    routers::events_router::create_routes();
+    rocket::ignite()
+        .manage(connection::init_pool())
+        .mount(
+            "/events",
+            routes![
+                events_handler::create_event,
+                events_handler::find_event
+            ],
+        )
+        .mount(
+            "/users",
+            routes![
+                users_handler::login_user,
+                users_handler::signup_user,
+                users_handler::my_profile
+            ],
+        )
+        .launch();
 }

@@ -6,8 +6,8 @@ table! {
         max_size -> Int4,
         budget -> Nullable<Varchar>,
         description -> Nullable<Text>,
-        start_at -> Nullable<Timestamp>,
-        end_at -> Nullable<Timestamp>,
+        start_at -> Nullable<Varchar>,
+        end_at -> Nullable<Varchar>,
         organizer_id -> Int4,
     }
 }

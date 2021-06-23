@@ -5,7 +5,7 @@ CREATE TABLE events (
   max_size INTEGER NOT NULL,
   budget VARCHAR,
   description TEXT,
-  start_at TIMESTAMP,
-  end_at TIMESTAMP,
+  start_at VARCHAR,
+  end_at VARCHAR,
   organizer_id INTEGER REFERENCES users(id) NOT NULL
 )
