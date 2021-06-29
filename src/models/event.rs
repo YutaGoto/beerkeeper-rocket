@@ -45,6 +45,7 @@ pub struct EventInsert {
 
 #[derive(Serialize, Deserialize)]
 pub struct EventInfo {
+    pub id: i32,
     pub name: String,
     pub location: Option<String>,
     pub max_size: i32,
@@ -58,6 +59,7 @@ pub struct EventInfo {
 impl Event {
     pub fn attach(self, organizer: User) -> EventInfo {
         EventInfo {
+            id: self.id,
             name: self.name,
             location: self.location,
             max_size: self.max_size,
