@@ -51,4 +51,18 @@ impl Participation {
 
         diesel::insert_into(participations).values(&participation).execute(conn)
     }
+
+    pub fn delete(p_id: i32, conn: &PgConnection) -> QueryResult<usize> {
+        diesel::delete(participations.filter(id.eq(p_id))).execute(conn)
+    }
+
+    pub fn find_by_user_and_event(u_id: i32, e_id: i32, conn: &PgConnection) -> Option<Participation> {
+        let result_participation = participations.filter(user_id.eq(u_id)).filter(event_id.eq(e_id)).get_result::<Participation>(conn);
+
+        if let Ok(participantion) = result_participation {
+            Some(participantion)
+        } else {
+            None
+        }
+    }
 }

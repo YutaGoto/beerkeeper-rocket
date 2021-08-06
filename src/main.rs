@@ -37,7 +37,8 @@ fn main() {
             routes![
                 events_handler::create_event,
                 events_handler::find_event,
-                events_handler::participant
+                events_handler::participant,
+                events_handler::delete_participant
             ],
         )
         .mount(
