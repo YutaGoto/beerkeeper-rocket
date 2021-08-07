@@ -1,0 +1,29 @@
+version: 2.1
+
+orbs:
+  rust: circleci/rust@1.5.0
+  slack: circleci/slack@4.4.2
+
+jobs:
+  lint:
+    docker:
+      - image: circleci/rust:latest
+    steps:
+      - checkout
+      - run: rustup default nightly
+      - run: cp src/secret.key.sample src/secret.key
+      - rust/clippy
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - lint:
+          context:
+            - slack
