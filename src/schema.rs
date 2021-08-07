@@ -34,8 +34,4 @@ joinable!(events -> users (organizer_id));
 joinable!(participations -> events (event_id));
 joinable!(participations -> users (user_id));
 
-allow_tables_to_appear_in_same_query!(
-    events,
-    participations,
-    users,
-);
+allow_tables_to_appear_in_same_query!(events, participations, users,);

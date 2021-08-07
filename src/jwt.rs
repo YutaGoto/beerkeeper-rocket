@@ -1,8 +1,8 @@
 use chrono::Utc;
 use jsonwebtoken::errors::Result;
 use jsonwebtoken::TokenData;
+use jsonwebtoken::{DecodingKey, EncodingKey};
 use jsonwebtoken::{Header, Validation};
-use jsonwebtoken::{EncodingKey, DecodingKey};
 use rocket::http::Status;
 use rocket::outcome::Outcome;
 use rocket::request::{self, FromRequest, Request};
@@ -12,7 +12,7 @@ use rocket_contrib::json::Json;
 use crate::connection::DbConn;
 use crate::constants::messages_constant;
 use crate::models::response::Response;
-use crate::models::user::{ User, LoginInfoDTO };
+use crate::models::user::{LoginInfoDTO, User};
 
 static ONE_WEEK: i64 = 60 * 60 * 24 * 7; // in seconds
 
@@ -67,11 +67,20 @@ pub fn generate_token(login: LoginInfoDTO) -> String {
         login_session: login.login_session,
     };
 
-    jsonwebtoken::encode(&Header::default(), &payload, &EncodingKey::from_secret(include_bytes!("secret.key"))).unwrap()
+    jsonwebtoken::encode(
+        &Header::default(),
+        &payload,
+        &EncodingKey::from_secret(include_bytes!("secret.key")),
+    )
+    .unwrap()
 }
 
 fn decode_token(token: String) -> Result<TokenData<UserToken>> {
-    jsonwebtoken::decode::<UserToken>(&token, &DecodingKey::from_secret(include_bytes!("secret.key")), &Validation::default())
+    jsonwebtoken::decode::<UserToken>(
+        &token,
+        &DecodingKey::from_secret(include_bytes!("secret.key")),
+        &Validation::default(),
+    )
 }
 
 fn verify_token(token_data: &TokenData<UserToken>, conn: &DbConn) -> bool {

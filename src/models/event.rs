@@ -1,10 +1,10 @@
 use diesel::prelude::*;
 use diesel::PgConnection;
 
+use crate::models::user::User;
 use crate::schema::events;
 use crate::schema::events::dsl::*;
 use crate::schema::users;
-use crate::models::user::User;
 
 #[derive(Identifiable, Queryable, Serialize, Deserialize)]
 pub struct Event {
@@ -67,7 +67,7 @@ impl Event {
             description: self.description,
             start_at: self.start_at,
             end_at: self.end_at,
-            organizer: organizer,
+            organizer,
         }
     }
 

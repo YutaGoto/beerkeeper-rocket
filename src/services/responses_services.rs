@@ -8,7 +8,7 @@ pub fn not_found_response() -> ResponseWithStatus {
         status_code: Status::NotFound.code,
         response: Response {
             message: String::from(messages_constant::MESSAGE_NOT_FOUND),
-            data: serde_json::to_value("").unwrap()
+            data: serde_json::to_value("").unwrap(),
         },
     }
 }

@@ -3,9 +3,9 @@ use diesel::prelude::*;
 use diesel::PgConnection;
 use uuid::Uuid;
 
+use crate::jwt::UserToken;
 use crate::schema::users;
 use crate::schema::users::dsl::*;
-use crate::jwt::UserToken;
 
 #[derive(Identifiable, Queryable, Serialize, Deserialize)]
 pub struct User {
@@ -33,7 +33,6 @@ pub struct UserInfo {
     pub email: String,
 }
 
-
 #[derive(Serialize, Deserialize)]
 pub struct LoginDTO {
     pub email: String,
@@ -59,7 +58,9 @@ impl User {
     }
 
     pub fn login(login: LoginDTO, conn: &PgConnection) -> Option<LoginInfoDTO> {
-        let user_to_verify = users.filter(email.eq(&login.email)).get_result::<User>(conn);
+        let user_to_verify = users
+            .filter(email.eq(&login.email))
+            .get_result::<User>(conn);
         if let Ok(user) = user_to_verify {
             if !user.password.is_empty() && verify(&login.password, &user.password).unwrap() {
                 let login_session_str = User::generate_login_session();
@@ -106,7 +107,11 @@ impl User {
         Uuid::new_v4().to_simple().to_string()
     }
 
-    pub fn update_login_session_to_db(un: &str, login_session_str: &str, conn: &PgConnection) -> bool {
+    pub fn update_login_session_to_db(
+        un: &str,
+        login_session_str: &str,
+        conn: &PgConnection,
+    ) -> bool {
         if let Some(user) = User::find_user_by_email(un, conn) {
             diesel::update(users.find(user.id))
                 .set(login_session.eq(login_session_str.to_string()))

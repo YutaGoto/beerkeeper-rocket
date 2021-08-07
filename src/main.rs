@@ -9,24 +9,24 @@ extern crate diesel;
 #[macro_use]
 extern crate serde_derive;
 extern crate bcrypt;
+extern crate chrono;
 extern crate dotenv;
 extern crate jsonwebtoken;
 extern crate serde;
 extern crate serde_json;
-extern crate chrono;
 extern crate uuid;
 
 use dotenv::dotenv;
 
-mod jwt;
-mod schema;
 mod connection;
 mod constants;
 mod handlers;
-mod services;
+mod jwt;
 mod models;
+mod schema;
+mod services;
 
-use crate::handlers::{users_handler, events_handler};
+use crate::handlers::{events_handler, users_handler};
 
 fn main() {
     dotenv().ok();
