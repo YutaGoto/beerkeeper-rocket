@@ -10,8 +10,7 @@ jobs:
       - image: circleci/rust:latest
     steps:
       - checkout
-      - rust/install:
-          version: nightly
+      - run: rustup default nightly
       - rust/clippy
       - slack/notify:
           event: fail
