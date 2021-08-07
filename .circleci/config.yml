@@ -1,0 +1,31 @@
+version: 2.1
+
+orbs:
+  rust: circleci/rust@1.5.0
+  slack: circleci/slack@4.4.2
+
+executors:
+  default:
+    docker:
+      - image: circleci/rust:latest
+
+jobs:
+  lint:
+    executor:
+      name: default
+    steps:
+      - checkout
+      - rust/install
+      - rust/clippy
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - lint
