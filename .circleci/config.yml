@@ -11,6 +11,7 @@ jobs:
     steps:
       - checkout
       - run: rustup default nightly
+      - run: cp src/secret.key.example src/secret.key
       - rust/clippy
       - slack/notify:
           event: fail
