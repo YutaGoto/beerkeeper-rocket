@@ -11,7 +11,7 @@ jobs:
     steps:
       - checkout
       - run: rustup default nightly
-      - run: cp src/secret.key.example src/secret.key
+      - run: cp src/secret.key.sample src/secret.key
       - rust/clippy
       - slack/notify:
           event: fail
@@ -24,4 +24,6 @@ workflows:
   version: 2
   test:
     jobs:
-      - lint
+      - lint:
+          context:
+            - slack
