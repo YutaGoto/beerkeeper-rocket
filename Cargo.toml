@@ -1,5 +1,5 @@
 [package]
-name = "beerkeeper-rocket"
+name = "beerkeeper"
 version = "0.1.0"
 authors = ["YutaGoto <you.goto.510@gmail.com>"]
 edition = "2018"
@@ -30,3 +30,6 @@ features = ["diesel_postgres_pool", "json"]
 [dependencies.chrono]
 version = "0.4.19"
 features = ["serde"]
+
+[dev-dependencies]
+trybuild = "1.0"

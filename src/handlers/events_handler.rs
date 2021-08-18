@@ -31,21 +31,12 @@ pub fn create_event(
 }
 
 #[get("/<id>", format = "json")]
-pub fn find_event(
-    id: i32,
-    token: Result<UserToken, status::Custom<Json<Response>>>,
-    conn: DbConn,
-) -> status::Custom<Json<Response>> {
-    match token {
-        Ok(_) => {
-            let response = events_service::find_by_id(&id, conn);
-            status::Custom(
-                Status::from_code(response.status_code).unwrap(),
-                Json(response.response),
-            )
-        }
-        Err(e) => e,
-    }
+pub fn find_event(id: i32, conn: DbConn) -> status::Custom<Json<Response>> {
+    let response = events_service::find_by_id(&id, conn);
+    status::Custom(
+        Status::from_code(response.status_code).unwrap(),
+        Json(response.response),
+    )
 }
 
 #[post("/<id>/participant", format = "json")]

@@ -5,7 +5,7 @@ orbs:
   slack: circleci/slack@4.4.2
 
 jobs:
-  lint:
+  lint_and_test:
     docker:
       - image: circleci/rust:latest
     steps:
@@ -13,6 +13,7 @@ jobs:
       - run: rustup default nightly
       - run: cp src/secret.key.sample src/secret.key
       - rust/clippy
+      - rust/test
       - slack/notify:
           event: fail
           template: basic_fail_1
@@ -24,6 +25,6 @@ workflows:
   version: 2
   test:
     jobs:
-      - lint:
+      - lint_and_test:
           context:
             - slack

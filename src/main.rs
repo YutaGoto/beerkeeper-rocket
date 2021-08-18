@@ -16,38 +16,15 @@ extern crate serde;
 extern crate serde_json;
 extern crate uuid;
 
-use dotenv::dotenv;
-
 mod connection;
 mod constants;
 mod handlers;
 mod jwt;
 mod models;
+mod root;
 mod schema;
 mod services;
 
-use crate::handlers::{events_handler, users_handler};
-
 fn main() {
-    dotenv().ok();
-    rocket::ignite()
-        .manage(connection::init_pool())
-        .mount(
-            "/events",
-            routes![
-                events_handler::create_event,
-                events_handler::find_event,
-                events_handler::participant,
-                events_handler::delete_participant
-            ],
-        )
-        .mount(
-            "/users",
-            routes![
-                users_handler::login_user,
-                users_handler::signup_user,
-                users_handler::my_profile
-            ],
-        )
-        .launch();
+    root::rocket().launch();
 }
