@@ -4,6 +4,7 @@
 #[macro_use]
 extern crate rocket;
 extern crate rocket_contrib;
+extern crate rocket_cors;
 #[macro_use]
 extern crate diesel;
 #[macro_use]
@@ -27,35 +28,41 @@ mod schema;
 mod services;
 
 use crate::handlers::{events_handler, users_handler};
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::Header;
-use rocket::{Request, Response};
+use rocket::http::Method;
 
-pub struct CORS;
+use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 
-impl Fairing for CORS {
-    fn info(&self) -> Info {
-        Info {
-            name: "Add CORS headers to responses",
-            kind: Kind::Response,
-        }
+fn make_cors() -> Cors {
+    let allowed_origins = AllowedOrigins::some_exact(&[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://0.0.0.0:8000",
+    ]);
+
+    CorsOptions {
+        allowed_origins,
+        allowed_methods: vec![Method::Get, Method::Post, Method::Delete]
+            .into_iter()
+            .map(From::from)
+            .collect(),
+        allowed_headers: AllowedHeaders::some(&[
+            "Authorization",
+            "Accept",
+            "Access-Control-Allow-Origin",
+            "Content-Type",
+        ]),
+        allow_credentials: true,
+        ..Default::default()
     }
-
-    fn on_response(&self, _request: &Request, response: &mut Response) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
-        response.set_header(Header::new(
-            "Access-Control-Allow-Methods",
-            "POST, GET, PATCH, OPTIONS",
-        ));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
-        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
-    }
+    .to_cors()
+    .expect("error while building CORS")
 }
 
 fn main() {
     dotenv().ok();
     rocket::ignite()
-        .attach(CORS)
+        .attach(make_cors())
         .manage(connection::init_pool())
         .mount(
             "/events",
