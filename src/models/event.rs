@@ -1,10 +1,11 @@
 use diesel::prelude::*;
 use diesel::PgConnection;
 
+use crate::models::participantion::Participation;
 use crate::models::user::User;
-use crate::schema::events;
 use crate::schema::events::dsl::*;
-use crate::schema::users;
+use crate::schema::participations::event_id;
+use crate::schema::{events, participations, users};
 
 #[derive(Identifiable, Queryable, Serialize, Deserialize)]
 pub struct Event {
@@ -54,10 +55,11 @@ pub struct EventInfo {
     pub start_at: Option<String>,
     pub end_at: Option<String>,
     pub organizer: User,
+    pub participations: Vec<Participation>,
 }
 
 impl Event {
-    pub fn attach(self, organizer: User) -> EventInfo {
+    pub fn attach(self, organizer: User, participations: Vec<Participation>) -> EventInfo {
         EventInfo {
             id: self.id,
             name: self.name,
@@ -68,6 +70,7 @@ impl Event {
             start_at: self.start_at,
             end_at: self.end_at,
             organizer,
+            participations,
         }
     }
 
@@ -103,5 +106,10 @@ fn populate(conn: &PgConnection, event: Event) -> EventInfo {
         .get_result::<User>(conn)
         .expect("Error loading author");
 
-    event.attach(organizer)
+    let participation_list = participations::table
+        .filter(event_id.eq(event.id))
+        .load::<Participation>(conn)
+        .expect("Error");
+
+    event.attach(organizer, participation_list)
 }
