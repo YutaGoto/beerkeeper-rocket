@@ -74,7 +74,7 @@ impl Event {
         }
     }
 
-    pub fn create(ev: EventDTO, user_id: i32, conn: &PgConnection) -> QueryResult<usize> {
+    pub fn create(ev: EventDTO, user_id: i32, conn: &PgConnection) -> Option<Event> {
         let event = EventInsert {
             name: ev.name,
             location: ev.location,
@@ -86,7 +86,13 @@ impl Event {
             organizer_id: user_id,
         };
 
-        diesel::insert_into(events).values(&event).execute(conn)
+        let result_event = diesel::insert_into(events).values(&event).get_result(conn);
+
+        if let Ok(event) = result_event {
+            Some(event)
+        } else {
+            None
+        }
     }
 
     pub fn find_by_id(i: i32, conn: &PgConnection) -> Option<EventInfo> {
