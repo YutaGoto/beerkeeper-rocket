@@ -20,7 +20,7 @@ pub fn create(event: EventDTO, user_id: i32, conn: DbConn) -> ResponseWithStatus
         ResponseWithStatus {
             status_code: Status::BadRequest.code,
             response: Response {
-                message: String::from(messages_constant::MESSAGE_NOT_FOUND),
+                message: String::from(messages_constant::MESSAGE_CAN_NOT_INSERT_DATA),
                 data: serde_json::to_value("").unwrap(),
             },
         }
