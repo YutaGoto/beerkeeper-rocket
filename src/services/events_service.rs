@@ -7,21 +7,23 @@ use crate::models::event::{Event, EventDTO};
 use crate::models::response::{Response, ResponseWithStatus};
 
 pub fn create(event: EventDTO, user_id: i32, conn: DbConn) -> ResponseWithStatus {
-    match Event::create(event, user_id, &conn) {
-        Ok(_) => ResponseWithStatus {
+    let option_event = Event::create(event, user_id, &conn);
+    if let Some(e) = option_event {
+        ResponseWithStatus {
             status_code: Status::Ok.code,
             response: Response {
                 message: String::from(messages_constant::MESSAGE_OK),
-                data: serde_json::to_value("").unwrap(),
+                data: serde_json::to_value(e).unwrap(),
             },
-        },
-        Err(e) => ResponseWithStatus {
+        }
+    } else {
+        ResponseWithStatus {
             status_code: Status::BadRequest.code,
             response: Response {
-                message: e.to_string(),
+                message: String::from(messages_constant::MESSAGE_CAN_NOT_INSERT_DATA),
                 data: serde_json::to_value("").unwrap(),
             },
-        },
+        }
     }
 }
 
