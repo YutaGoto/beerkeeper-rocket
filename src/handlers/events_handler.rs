@@ -76,7 +76,7 @@ pub fn participant(
     }
 }
 
-#[delete("/<id>/participant", format = "json")]
+#[delete("/<id>/participant")]
 pub fn delete_participant(
     id: i32,
     token: Result<UserToken, status::Custom<Json<Response>>>,
