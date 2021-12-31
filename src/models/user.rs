@@ -42,6 +42,7 @@ pub struct LoginDTO {
 #[derive(Insertable)]
 #[table_name = "users"]
 pub struct LoginInfoDTO {
+    pub id: i32,
     pub email: String,
     pub login_session: String,
 }
@@ -66,6 +67,7 @@ impl User {
                 let login_session_str = User::generate_login_session();
                 User::update_login_session_to_db(&user.email, &login_session_str, conn);
                 Some(LoginInfoDTO {
+                    id: user.id,
                     email: user.email,
                     login_session: login_session_str,
                 })
