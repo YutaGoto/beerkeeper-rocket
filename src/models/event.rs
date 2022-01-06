@@ -7,7 +7,7 @@ use crate::schema::events::dsl::*;
 use crate::schema::participations::event_id;
 use crate::schema::{events, participations, users};
 
-#[derive(Identifiable, Queryable, Serialize, Deserialize)]
+#[derive(Identifiable, Queryable, Serialize, Deserialize, Associations)]
 pub struct Event {
     pub id: i32,
     pub name: String,
