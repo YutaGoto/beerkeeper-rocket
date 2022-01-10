@@ -6,11 +6,12 @@ use crate::models::user::User;
 use crate::schema::participations;
 use crate::schema::participations::dsl::*;
 
-#[derive(Identifiable, Queryable, Serialize, Deserialize)]
+#[derive(Identifiable, Queryable, Serialize, Deserialize, Associations)]
+#[belongs_to(User)]
 pub struct Participation {
     pub id: i32,
     pub event: i32,
-    pub user: i32,
+    pub user_id: i32,
 }
 
 #[derive(Insertable, Serialize, Deserialize)]

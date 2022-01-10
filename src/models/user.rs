@@ -4,10 +4,13 @@ use diesel::PgConnection;
 use uuid::Uuid;
 
 use crate::jwt::UserToken;
-use crate::schema::users;
+use crate::models::event::Event;
+use crate::models::participantion::Participation;
+use crate::schema::events::organizer_id;
 use crate::schema::users::dsl::*;
+use crate::schema::{events, users};
 
-#[derive(Identifiable, Queryable, Serialize, Deserialize)]
+#[derive(Identifiable, Queryable, Serialize, Deserialize, Associations)]
 pub struct User {
     pub id: i32,
     pub name: String,
@@ -31,6 +34,8 @@ pub struct UserInfo {
     pub id: i32,
     pub name: String,
     pub email: String,
+    pub organizer_events: Vec<Event>,
+    pub events: Vec<Event>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -87,19 +92,29 @@ impl User {
             .is_ok()
     }
 
-    pub fn find_user_by_email(un: &str, conn: &PgConnection) -> Option<User> {
+    pub fn attach(self, organizer_events: Vec<Event>, events: Vec<Event>) -> UserInfo {
+        UserInfo {
+            id: self.id,
+            name: self.name,
+            email: self.email,
+            organizer_events,
+            events,
+        }
+    }
+
+    pub fn find_user_by_email(un: &str, conn: &PgConnection) -> Option<UserInfo> {
         let result_user = users.filter(email.eq(un)).get_result::<User>(conn);
         if let Ok(user) = result_user {
-            Some(user)
+            Some(populations(conn, user))
         } else {
             None
         }
     }
 
-    pub fn find_by_id(i: i32, conn: &PgConnection) -> Option<User> {
+    pub fn find_by_id(i: i32, conn: &PgConnection) -> Option<UserInfo> {
         let result_user = users.find(i).get_result::<User>(conn);
         if let Ok(user) = result_user {
-            Some(user)
+            Some(populations(conn, user))
         } else {
             None
         }
@@ -123,4 +138,19 @@ impl User {
             false
         }
     }
+}
+
+fn populations(conn: &PgConnection, user: User) -> UserInfo {
+    let organizer_events = events::table
+        .filter(organizer_id.eq(user.id))
+        .load::<Event>(conn)
+        .expect("Error loading author");
+
+    let events = Participation::belonging_to(&user)
+        .inner_join(events::table)
+        .select(events::all_columns)
+        .load::<Event>(conn)
+        .expect("error");
+
+    user.attach(organizer_events, events)
 }
