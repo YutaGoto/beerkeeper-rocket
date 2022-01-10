@@ -34,7 +34,7 @@ pub struct UserInfo {
     pub id: i32,
     pub name: String,
     pub email: String,
-    pub organizer_list: Vec<Event>,
+    pub organizer_events: Vec<Event>,
     pub events: Vec<Event>,
 }
 
@@ -92,12 +92,12 @@ impl User {
             .is_ok()
     }
 
-    pub fn attach(self, organizer_list: Vec<Event>, events: Vec<Event>) -> UserInfo {
+    pub fn attach(self, organizer_events: Vec<Event>, events: Vec<Event>) -> UserInfo {
         UserInfo {
             id: self.id,
             name: self.name,
             email: self.email,
-            organizer_list,
+            organizer_events,
             events,
         }
     }
@@ -141,7 +141,7 @@ impl User {
 }
 
 fn populations(conn: &PgConnection, user: User) -> UserInfo {
-    let organizer_list = events::table
+    let organizer_events = events::table
         .filter(organizer_id.eq(user.id))
         .load::<Event>(conn)
         .expect("Error loading author");
@@ -152,5 +152,5 @@ fn populations(conn: &PgConnection, user: User) -> UserInfo {
         .load::<Event>(conn)
         .expect("error");
 
-    user.attach(organizer_list, events)
+    user.attach(organizer_events, events)
 }
